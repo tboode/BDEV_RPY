@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RapidPay.Infrastructure.Data;
 
@@ -10,9 +11,11 @@ using RapidPay.Infrastructure.Data;
 namespace RapidPay.Infrastructure.Migrations
 {
     [DbContext(typeof(RapidPayDbContext))]
-    partial class RapidPayDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230702222652_UserToIDSrv")]
+    partial class UserToIDSrv
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.7");

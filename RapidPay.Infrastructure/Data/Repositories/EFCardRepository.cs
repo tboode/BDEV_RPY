@@ -23,7 +23,7 @@ public class EFCardRepository: ICardRepository
         return _dbContext.Cards.FirstOrDefault(x => x.CardNumber.Equals(cardNumber));
     }
 
-    public void UpdateCard(Card card)
+    public void UpdateCard(Card card) 
     {
         if (!CardExists(card.CardNumber))
             throw new ArgumentException("Attempted to update card that does not exist.");

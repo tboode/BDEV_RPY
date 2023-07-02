@@ -5,5 +5,5 @@ namespace RapidPay.Core.Interfaces.Services;
 
 public interface IPaymentService
 {
-    ServiceActionResult<PaymentResponseDTO> Pay(PaymentRequestDTO request);
+    ServiceActionResult<PaymentResponseDTO> Pay(PaymentRequestDTO request, string userSubjectId);
 }

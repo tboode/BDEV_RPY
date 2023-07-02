@@ -20,6 +20,6 @@ public class PaymentController : ControllerBase
     [HttpPut]
     public IActionResult Pay(PaymentRequestDTO request)
     {
-        return this.HandleServiceActionResult(_paymentService.Pay(request));
+        return this.HandleServiceActionResult(_paymentService.Pay(request, this.ReadUserId()));
     }
 }

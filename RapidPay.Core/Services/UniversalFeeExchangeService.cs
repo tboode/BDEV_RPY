@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using RapidPay.Core.Interfaces.Services;
 
 namespace RapidPay.Core.Services;
@@ -11,9 +12,13 @@ public class UniversalFeeExchangeService: IUniversalFeeExchangeService
     private decimal _currentMultiplier;
     
     private readonly Random _random = new();
-    
-    public UniversalFeeExchangeService()
+
+    private readonly ILogger<UniversalFeeExchangeService> _logger;
+
+    public UniversalFeeExchangeService(ILogger<UniversalFeeExchangeService> logger)
     {
+        _logger = logger;
+
         UpdateMultiplier();
         
         var feeMultiplierRotator = new Task(StartFeeMultiplierRotator);
@@ -47,6 +52,8 @@ public class UniversalFeeExchangeService: IUniversalFeeExchangeService
         {
             Thread.Sleep(ONE_HOUR_IN_MILLISECONDS);
             UpdateMultiplier();
+
+            _logger.Log(LogLevel.Information, $"The Universal Fee Exchange has updated their fee multiplier to {GetCurrentMultiplier()}");
         }
     }
     

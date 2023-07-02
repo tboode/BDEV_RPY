@@ -18,4 +18,11 @@ public static class ControllerBaseExtensions
 
         return controller.Ok(result.ActionResult);
     }
+
+    public static string ReadUserId(this ControllerBase controller)
+    {
+        return controller.User.Claims.
+            First(x => x.Type.Equals("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"))
+            .Value;
+    }
 }

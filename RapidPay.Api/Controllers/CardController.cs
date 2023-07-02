@@ -1,4 +1,5 @@
 using System.Net;
+using IdentityModel;
 using Microsoft.AspNetCore.Mvc;
 using RapidPay.Core.DTOs;
 using RapidPay.Core.DTOs.Card;
@@ -24,12 +25,12 @@ public class CardController : ControllerBase
     [HttpPost]
     public IActionResult Create(CreateCardRequestDTO request)
     {
-        return this.HandleServiceActionResult(_cardService.CreateCard(request));
+        return this.HandleServiceActionResult(_cardService.CreateCard(request, this.ReadUserId()));
     }
     
     [HttpGet]
-    public IActionResult GetBalance(BalanceRequestDTO balanceRequest)
+    public IActionResult GetBalance(string cardNumber)
     {
-        return this.HandleServiceActionResult(_cardService.GetBalance(balanceRequest));
+        return this.HandleServiceActionResult(_cardService.GetBalance(cardNumber, this.ReadUserId()));
     }
 }

@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using RapidPay.Core.DTOs.Card;
 using RapidPay.Core.Entities;
 using RapidPay.Core.Interfaces.Infrastructure.Data.Repositories;
@@ -8,83 +9,69 @@ namespace RapidPay.Core.Services;
 public class CardService : ICardService
 {
     private readonly ICardRepository _cardRepository;
-    private readonly IUserRepository _userRepository;
     private readonly ICardNumberFactory _cardNumberFactory;
+    private readonly ILogger<CardService> _logger;
 
-    public CardService(ICardRepository cardRepository, IUserRepository userRepository, ICardNumberFactory cardNumberFactory)
+    public CardService(ICardRepository cardRepository, ICardNumberFactory cardNumberFactory, ILogger<CardService> logger)
     {
         _cardRepository = cardRepository;
-        _userRepository = userRepository;
         _cardNumberFactory = cardNumberFactory;
+        _logger = logger;
     }
 
-    public ServiceActionResult<CreateCardResponseDTO> CreateCard(CreateCardRequestDTO request)
+    public ServiceActionResult<CreateCardResponseDTO> CreateCard(CreateCardRequestDTO request, string userSubjectId)
     {
-        var result = ValidateCreateCardRequest(request);
-        
-        if (result.Status != ServiceActionResult<CreateCardResponseDTO>.ServiceActionResultStatus.Success)
-            return result;
+        _logger.Log(LogLevel.Information, $"Creating new card for user {userSubjectId}");
+
+        var result = new ServiceActionResult<CreateCardResponseDTO>();
 
         var card = new Card
         {
-            UserId = request.UserID,
+            UserId = userSubjectId,
             Balance = request.InitialBalance,
             CardNumber = _cardNumberFactory.GenerateCardNumber(),
             Id = Guid.NewGuid()
         };
 
         _cardRepository.CreateCard(card);
-        
+
+        _logger.Log(LogLevel.Information, $"Created new card for user {userSubjectId} successfully");
+
         result.ActionResult = new CreateCardResponseDTO
         {
             CardNumber = card.CardNumber,
-            InitialBalance = card.Balance,
-            UserID = card.UserId
+            InitialBalance = card.Balance
         };
 
         return result;
     }
 
-    public ServiceActionResult<BalanceResponseDTO> GetBalance(BalanceRequestDTO request)
+    public ServiceActionResult<BalanceResponseDTO> GetBalance(string cardNumber, string userSubjectId)
     {
-        var result = ValidateGetBalanceRequest(request);
+        var result = ValidateGetBalanceRequest(cardNumber, userSubjectId);
 
         if (result.Status != ServiceActionResult<BalanceResponseDTO>.ServiceActionResultStatus.Success)
-            return result;
-
-        result.ActionResult = new BalanceResponseDTO
         {
-            Balance = _cardRepository.GetCard(request.CardNumber)!.Balance,
-            CardNumber = request.CardNumber
-        };
-
-        return result;
-    }
-    
-    private ServiceActionResult<CreateCardResponseDTO> ValidateCreateCardRequest(CreateCardRequestDTO request)
-    {
-        var result = new ServiceActionResult<CreateCardResponseDTO>();
-        result.Status = ServiceActionResult<CreateCardResponseDTO>.ServiceActionResultStatus.Success;
-
-        if (!_userRepository.UserExists(request.UserID))
-        {
-            result.Status =
-                ServiceActionResult<CreateCardResponseDTO>.ServiceActionResultStatus
-                    .SecureFailure;
-            result.ActionResultMessage = "User does not exist";
+            _logger.Log(LogLevel.Warning, $"Validation failed for get balance request for card {CardNumberFactory.MaskCardNumber(cardNumber)} for user {userSubjectId}. Reason: {result.ActionResultMessage}");
 
             return result;
         }
 
+        result.ActionResult = new BalanceResponseDTO
+        {
+            Balance = _cardRepository.GetCard(cardNumber)!.Balance,
+            CardNumber = cardNumber
+        };
+
         return result;
     }
 
-    private ServiceActionResult<BalanceResponseDTO> ValidateGetBalanceRequest(BalanceRequestDTO request)
+    private ServiceActionResult<BalanceResponseDTO> ValidateGetBalanceRequest(string cardNumber, string userSubjectId)
     {
         var result = new ServiceActionResult<BalanceResponseDTO>();
         result.Status = ServiceActionResult<BalanceResponseDTO>.ServiceActionResultStatus.Success;
 
-        if (!_cardRepository.CardExists(request.CardNumber))
+        if (!_cardRepository.CardExists(cardNumber))
         {
             result.Status = ServiceActionResult<BalanceResponseDTO>.ServiceActionResultStatus.SecureFailure;
             result.ActionResultMessage = "Card does not exist.";
@@ -92,7 +79,7 @@ public class CardService : ICardService
             return result;
         }
 
-        if (!CardBelongsToUser(request.UserId, request.CardNumber))
+        if (!CardBelongsToUser(userSubjectId, cardNumber))
         {
             result.Status = ServiceActionResult<BalanceResponseDTO>.ServiceActionResultStatus.SecureFailure;
             result.ActionResultMessage = "Card does not belong to user.";
@@ -103,9 +90,9 @@ public class CardService : ICardService
         return result;
     }
 
-    private bool CardBelongsToUser(Guid userId, string cardNumber)
+    private bool CardBelongsToUser(string userSubjectId, string cardNumber)
     {
         var card = _cardRepository.GetCard(cardNumber);
-        return card!.UserId == userId;
+        return card!.UserId.Equals(userSubjectId);
     }
 }

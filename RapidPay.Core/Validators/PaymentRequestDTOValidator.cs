@@ -8,7 +8,6 @@ public class PaymentRequestDTOValidator: AbstractValidator<PaymentRequestDTO>
 {  
     public PaymentRequestDTOValidator()
     {
-        RuleFor(x => x.UserId).NotEmpty();
         RuleFor(x => x.CardNumber).NotEmpty();
         RuleFor(x => x.CardNumber).Length(15);
         RuleFor(x => x.CardNumber).Matches(@"^\d{15}$");

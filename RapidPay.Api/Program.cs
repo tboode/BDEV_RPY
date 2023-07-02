@@ -15,7 +15,6 @@ var configuration = builder.Configuration;
 
 builder.Services.AddDbContext<RapidPayDbContext>();
 builder.Services.AddTransient<ICardRepository, EFCardRepository>();
-builder.Services.AddTransient<IUserRepository, EFUserRepository>();
 
 builder.Services.AddSingleton<IUniversalFeeExchangeService, UniversalFeeExchangeService>();
 builder.Services.AddTransient<ICardNumberFactory, CardNumberFactory>();

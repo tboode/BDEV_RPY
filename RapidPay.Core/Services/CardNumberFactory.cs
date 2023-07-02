@@ -29,4 +29,9 @@ public class CardNumberFactory: ICardNumberFactory
 
         return result;
     }
+
+    public static string MaskCardNumber(string cardNumber)
+    {
+        return $"{cardNumber.Substring(0, 4)} **** **** {cardNumber.Substring(12, 3)}";
+    }
 }
