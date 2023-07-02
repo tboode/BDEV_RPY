@@ -1,4 +1,9 @@
+using Duende.IdentityServer.Test;
+using Microsoft.EntityFrameworkCore;
 using RapidPay.Identity.Pages;
+using RapidPay.Identity.Pages.Admin.ApiScopes;
+using RapidPay.Identity.Pages.Admin.IdentityScopes;
+using RapidPay.Identity.Pages.Portal;
 using Serilog;
 
 namespace RapidPay.Identity
@@ -9,23 +14,40 @@ namespace RapidPay.Identity
         {
             builder.Services.AddRazorPages();
 
+            var connectionString = "Data Source=./rapidpay.db";
+
             var isBuilder = builder.Services.AddIdentityServer(options =>
-                {
-                    options.Events.RaiseErrorEvents = true;
-                    options.Events.RaiseInformationEvents = true;
-                    options.Events.RaiseFailureEvents = true;
-                    options.Events.RaiseSuccessEvents = true;
+            {
+                options.Events.RaiseErrorEvents = true;
+                options.Events.RaiseInformationEvents = true;
+                options.Events.RaiseFailureEvents = true;
+                options.Events.RaiseSuccessEvents = true;
 
-                    // see https://docs.duendesoftware.com/identityserver/v6/fundamentals/resources/
-                    options.EmitStaticAudienceClaim = true;
-                })
-                .AddTestUsers(TestUsers.Users);
+                // see https://docs.duendesoftware.com/identityserver/v6/fundamentals/resources/
+                options.EmitStaticAudienceClaim = true;
+            });
+            
+            isBuilder.AddConfigurationStore(options =>
+            {
+                options.ConfigureDbContext = b =>
+                    b.UseSqlite(connectionString,
+                        dbOpts => dbOpts.MigrationsAssembly(typeof(Program).Assembly.FullName));
+            });
 
-            // in-memory, code config
-            isBuilder.AddInMemoryIdentityResources(Config.IdentityResources);
-            isBuilder.AddInMemoryApiScopes(Config.ApiScopes);
-            isBuilder.AddInMemoryClients(Config.Clients);
+            isBuilder.AddOperationalStore(options =>
+            {
+                options.ConfigureDbContext = b =>
+                    b.UseSqlite(connectionString,
+                        dbOpts => dbOpts.MigrationsAssembly(typeof(Program).Assembly.FullName));
+            });
+            isBuilder.AddTestUsers(TestUsers.Users);
+
             builder.Services.AddAuthentication();
+
+            builder.Services.AddTransient<RapidPay.Identity.Pages.Portal.ClientRepository>();
+            builder.Services.AddTransient<ClientRepository>();
+            builder.Services.AddTransient<IdentityScopeRepository>();
+            builder.Services.AddTransient<ApiScopeRepository>();
 
             return builder.Build();
         }
