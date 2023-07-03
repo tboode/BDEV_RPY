@@ -4,8 +4,8 @@ namespace RapidPay.Core.Interfaces.Infrastructure.Data.Repositories;
 
 public interface ICardRepository
 {
-    void CreateCard(Card card);
+    Task CreateCard(Card card);
     Card? GetCard(string cardNumber);
-    void UpdateCard(Card card);
+    Task UpdateCard(Card card);
     bool CardExists(string cardNumber);
 }

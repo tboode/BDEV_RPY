@@ -18,7 +18,7 @@ public class PaymentService : IPaymentService
         _logger = logger;
     }
 
-    public ServiceActionResult<PaymentResponseDTO> Pay(PaymentRequestDTO request, string userSubjectId)
+    public async Task<ServiceActionResult<PaymentResponseDTO>> Pay(PaymentRequestDTO request, string userSubjectId)
     {
         var maskedCardNumber = CardNumberFactory.MaskCardNumber(request.CardNumber);
 
@@ -40,7 +40,7 @@ public class PaymentService : IPaymentService
         card.Balance -= request.Amount + fee;
         card.LastFee = fee;
         
-        _cardRepository.UpdateCard(card);
+        await _cardRepository.UpdateCard(card);
 
         _logger.Log(LogLevel.Information, $"Processed payment of {request.Amount} on card {maskedCardNumber} for user {userSubjectId} successfully");
 

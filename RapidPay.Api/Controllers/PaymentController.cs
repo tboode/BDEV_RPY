@@ -18,8 +18,8 @@ public class PaymentController : ControllerBase
     }
     
     [HttpPut]
-    public IActionResult Pay(PaymentRequestDTO request)
+    public async Task<IActionResult> Pay(PaymentRequestDTO request)
     {
-        return this.HandleServiceActionResult(_paymentService.Pay(request, this.ReadUserId()));
+        return this.HandleServiceActionResult(await _paymentService.Pay(request, this.ReadUserId()));
     }
 }

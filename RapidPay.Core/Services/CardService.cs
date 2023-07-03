@@ -19,7 +19,7 @@ public class CardService : ICardService
         _logger = logger;
     }
 
-    public ServiceActionResult<CreateCardResponseDTO> CreateCard(CreateCardRequestDTO request, string userSubjectId)
+    public async Task<ServiceActionResult<CreateCardResponseDTO>> CreateCard(CreateCardRequestDTO request, string userSubjectId)
     {
         _logger.Log(LogLevel.Information, $"Creating new card for user {userSubjectId}");
 
@@ -33,7 +33,7 @@ public class CardService : ICardService
             Id = Guid.NewGuid()
         };
 
-        _cardRepository.CreateCard(card);
+        await _cardRepository.CreateCard(card);
 
         _logger.Log(LogLevel.Information, $"Created new card for user {userSubjectId} successfully");
 

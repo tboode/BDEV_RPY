@@ -23,9 +23,9 @@ public class CardController : ControllerBase
     }
     
     [HttpPost]
-    public IActionResult Create(CreateCardRequestDTO request)
+    public async Task<IActionResult> Create(CreateCardRequestDTO request)
     {
-        return this.HandleServiceActionResult(_cardService.CreateCard(request, this.ReadUserId()));
+        return this.HandleServiceActionResult(await _cardService.CreateCard(request, this.ReadUserId()));
     }
     
     [HttpGet]

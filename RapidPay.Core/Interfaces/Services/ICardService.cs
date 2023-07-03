@@ -5,6 +5,6 @@ namespace RapidPay.Core.Interfaces.Services;
 
 public interface ICardService
 {
-    ServiceActionResult<CreateCardResponseDTO> CreateCard(CreateCardRequestDTO request, string userSubjectId);
+    Task<ServiceActionResult<CreateCardResponseDTO>> CreateCard(CreateCardRequestDTO request, string userSubjectId);
     ServiceActionResult<BalanceResponseDTO> GetBalance(string cardNumber, string userSubjectId);
 }
