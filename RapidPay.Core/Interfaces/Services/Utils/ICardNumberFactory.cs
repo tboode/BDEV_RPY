@@ -1,4 +1,4 @@
-namespace RapidPay.Core.Interfaces.Services;
+namespace RapidPay.Core.Interfaces.Services.Utils;
 
 public interface ICardNumberUtils
 {

@@ -1,13 +1,7 @@
-using System.Net;
 using FluentValidation;
-using FluentValidation.Results;
-using IdentityModel;
 using Microsoft.AspNetCore.Mvc;
-using RapidPay.Core.DTOs;
 using RapidPay.Core.DTOs.Card;
-using RapidPay.Core.Interfaces;
 using RapidPay.Core.Interfaces.Services;
-using RapidPay.Core.Services;
 
 namespace RapidPay.Api.Controllers;
 

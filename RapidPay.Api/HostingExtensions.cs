@@ -7,6 +7,7 @@ using RapidPay.Core.DTOs.Card;
 using RapidPay.Core.DTOs.Payment;
 using RapidPay.Core.Interfaces.Infrastructure.Data.Repositories;
 using RapidPay.Core.Interfaces.Services;
+using RapidPay.Core.Interfaces.Services.Utils;
 using RapidPay.Core.Services;
 using RapidPay.Core.Services.Utils;
 using RapidPay.Core.Validators;

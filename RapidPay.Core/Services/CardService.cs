@@ -3,6 +3,7 @@ using RapidPay.Core.DTOs.Card;
 using RapidPay.Core.Entities;
 using RapidPay.Core.Interfaces.Infrastructure.Data.Repositories;
 using RapidPay.Core.Interfaces.Services;
+using RapidPay.Core.Interfaces.Services.Utils;
 using RapidPay.Core.Services.Utils;
 
 namespace RapidPay.Core.Services;

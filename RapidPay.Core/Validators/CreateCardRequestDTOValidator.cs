@@ -1,5 +1,4 @@
 using FluentValidation;
-using RapidPay.Core.DTOs;
 using RapidPay.Core.DTOs.Card;
 
 namespace RapidPay.Core.Validators;

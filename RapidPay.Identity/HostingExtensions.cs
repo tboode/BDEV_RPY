@@ -1,4 +1,3 @@
-using Duende.IdentityServer.Test;
 using Microsoft.EntityFrameworkCore;
 using RapidPay.Identity.Pages;
 using RapidPay.Identity.Pages.Admin.ApiScopes;

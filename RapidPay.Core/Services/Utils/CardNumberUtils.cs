@@ -1,6 +1,6 @@
 using System.Text;
 using RapidPay.Core.Interfaces.Infrastructure.Data.Repositories;
-using RapidPay.Core.Interfaces.Services;
+using RapidPay.Core.Interfaces.Services.Utils;
 
 namespace RapidPay.Core.Services.Utils;
 

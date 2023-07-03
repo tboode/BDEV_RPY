@@ -1,5 +1,4 @@
-﻿using RapidPay.Core.DTOs.Card;
-using RapidPay.Core.DTOs.Payment;
+﻿using RapidPay.Core.DTOs.Payment;
 using RapidPay.Core.Entities;
 using RapidPay.Core.Interfaces.Infrastructure.Data.Repositories;
 using RapidPay.Core.Interfaces.Services;

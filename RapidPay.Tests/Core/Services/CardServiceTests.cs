@@ -1,10 +1,7 @@
-﻿using NUnit.Framework;
-using Moq;
-using Microsoft.Extensions.Logging;
-using RapidPay.Core.Entities;
+﻿using RapidPay.Core.Entities;
 using RapidPay.Core.Interfaces.Infrastructure.Data.Repositories;
-using RapidPay.Core.Interfaces.Services;
 using RapidPay.Core.DTOs.Card;
+using RapidPay.Core.Interfaces.Services.Utils;
 using RapidPay.Core.Services;
 
 #pragma warning disable CS8618 // Disable nullable warning in tests.
