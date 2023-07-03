@@ -1,13 +1,13 @@
 using RapidPay.Core.Interfaces.Infrastructure.Data.Repositories;
 using RapidPay.Core.Interfaces.Services;
 
-namespace RapidPay.Core.Services;
+namespace RapidPay.Core.Services.Utils;
 
-public class CardNumberFactory: ICardNumberFactory
+public class CardNumberUtils: ICardNumberUtils
 {
     private readonly ICardRepository _cardRepository;
 
-    public CardNumberFactory(ICardRepository cardRepository)
+    public CardNumberUtils(ICardRepository cardRepository)
     {
         _cardRepository = cardRepository;
     }
@@ -28,6 +28,11 @@ public class CardNumberFactory: ICardNumberFactory
         } while (_cardRepository.CardExists(result));
 
         return result;
+    }
+
+    public static bool IsValidCardNumber(string cardNumber)
+    {
+        return cardNumber.All(char.IsDigit) && cardNumber.Length == 15;
     }
 
     public static string MaskCardNumber(string cardNumber)

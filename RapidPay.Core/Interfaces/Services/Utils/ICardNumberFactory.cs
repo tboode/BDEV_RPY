@@ -1,6 +1,6 @@
 namespace RapidPay.Core.Interfaces.Services;
 
-public interface ICardNumberFactory
+public interface ICardNumberUtils
 {
     string GenerateCardNumber();
 }

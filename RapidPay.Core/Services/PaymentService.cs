@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using RapidPay.Core.DTOs.Payment;
 using RapidPay.Core.Interfaces.Infrastructure.Data.Repositories;
 using RapidPay.Core.Interfaces.Services;
+using RapidPay.Core.Services.Utils;
 
 namespace RapidPay.Core.Services;
 
@@ -20,16 +21,26 @@ public class PaymentService : IPaymentService
 
     public async Task<ServiceActionResult<PaymentResponseDTO>> Pay(PaymentRequestDTO request, string userSubjectId)
     {
-        var maskedCardNumber = CardNumberFactory.MaskCardNumber(request.CardNumber);
+        var maskedCardNumber = CardNumberUtils.MaskCardNumber(request.CardNumber);
 
-        _logger.Log(LogLevel.Information, $"Processing payment of {request.Amount} on card {maskedCardNumber} for user {userSubjectId}");
+        _logger.Log(
+            LogLevel.Information, 
+            "Processing payment of {RequestAmount} on card {MaskedCardNumber} for user {UserSubjectId}", 
+            request.Amount, 
+            maskedCardNumber, 
+            userSubjectId);
 
         var result = ValidatePaymentRequest(request, userSubjectId);
 
-        // If the status is not Success, return the validation result
         if (result.Status != ServiceActionResult<PaymentResponseDTO>.ServiceActionResultStatus.Success)
         {
-            _logger.Log(LogLevel.Warning, $"Validation failed for payment request for card {maskedCardNumber} for user {userSubjectId}. Reason: {result.ActionResultMessage}");
+            _logger.Log(
+                LogLevel.Warning, 
+                "Validation failed for payment request for card {MaskedCardNumber} for user {UserSubjectId}. Reason: {ResultActionResultMessage}", 
+                maskedCardNumber, 
+                userSubjectId, 
+                result.ActionResultMessage);
+            
             return result;
         }
 
@@ -42,7 +53,12 @@ public class PaymentService : IPaymentService
         
         await _cardRepository.UpdateCard(card);
 
-        _logger.Log(LogLevel.Information, $"Processed payment of {request.Amount} on card {maskedCardNumber} for user {userSubjectId} successfully");
+        _logger.Log(
+            LogLevel.Information, 
+            "Processed payment of {RequestAmount} on card {MaskedCardNumber} for user {UserSubjectId} successfully", 
+            request.Amount, 
+            maskedCardNumber, 
+            userSubjectId);
 
         result.ActionResult = new PaymentResponseDTO
         {
@@ -60,7 +76,6 @@ public class PaymentService : IPaymentService
     {
         var result = new ServiceActionResult<PaymentResponseDTO>();
 
-        // Verify card exists.
         if (!_cardRepository.CardExists(request.CardNumber))
         {
             result.Status = ServiceActionResult<PaymentResponseDTO>.ServiceActionResultStatus.SecureFailure;
@@ -71,7 +86,6 @@ public class PaymentService : IPaymentService
 
         var card = _cardRepository.GetCard(request.CardNumber);
 
-        // Verify card belongs to user.
         if (!card!.UserId.Equals(userSubjectId))
         {
             result.Status = ServiceActionResult<PaymentResponseDTO>.ServiceActionResultStatus.SecureFailure;
@@ -80,7 +94,6 @@ public class PaymentService : IPaymentService
             return result;
         }
 
-        // Verify card has sufficient funds.
         var fee = _universalFeeExchangeService.GetFee(card.LastFee);
 
         if (card.Balance < request.Amount + fee)
@@ -91,7 +104,6 @@ public class PaymentService : IPaymentService
             return result;
         }
 
-        // If all checks pass, return a successful result
         result.Status = ServiceActionResult<PaymentResponseDTO>.ServiceActionResultStatus.Success;
         return result;
     }

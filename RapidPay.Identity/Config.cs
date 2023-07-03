@@ -30,15 +30,6 @@ namespace RapidPay.Identity
                     AllowedCorsOrigins = { "https://localhost:44301" },
                     AllowOfflineAccess = true,
                     AllowedScopes = { "openid", "profile", "api" },
-                },
-                new Client
-                {
-                    ClientId = "python-nb",
-                    RequireClientSecret = false,
-                    AllowedGrantTypes = GrantTypes.Code,
-                    RedirectUris = { "https://localhost:8888" },
-                    AllowOfflineAccess = true,
-                    AllowedScopes = { "openid", "profile", "api" },
                 }
             };
     }

@@ -16,16 +16,16 @@ namespace RapidPay.Tests.Core.Services
     {
         private CardService _cardService;
         private Mock<ICardRepository> _cardRepositoryMock;
-        private Mock<ICardNumberFactory> _cardNumberFactoryMock;
+        private Mock<ICardNumberUtils> _cardNumberUtilsMock;
         private Mock<ILogger<CardService>> _loggerMock;
 
         [SetUp]
         public void Setup()
         {
             _cardRepositoryMock = new Mock<ICardRepository>();
-            _cardNumberFactoryMock = new Mock<ICardNumberFactory>();
+            _cardNumberUtilsMock = new Mock<ICardNumberUtils>();
             _loggerMock = new Mock<ILogger<CardService>>();
-            _cardService = new CardService(_cardRepositoryMock.Object, _cardNumberFactoryMock.Object, _loggerMock.Object);
+            _cardService = new CardService(_cardRepositoryMock.Object, _cardNumberUtilsMock.Object, _loggerMock.Object);
         }
 
         [Test]
@@ -38,7 +38,7 @@ namespace RapidPay.Tests.Core.Services
 
             var createCardRequestDTO = new CreateCardRequestDTO { InitialBalance = initialBalance };
             
-            _cardNumberFactoryMock.Setup(f => f.GenerateCardNumber()).Returns(cardNumber);
+            _cardNumberUtilsMock.Setup(f => f.GenerateCardNumber()).Returns(cardNumber);
 
             // Act
             var result = await _cardService.CreateCard(createCardRequestDTO, userSubjectId);
@@ -49,7 +49,7 @@ namespace RapidPay.Tests.Core.Services
             Assert.That(result.ActionResult.InitialBalance, Is.EqualTo(initialBalance));
             Assert.That(result.ActionResult.CardNumber, Is.EqualTo(cardNumber));
 
-            _cardNumberFactoryMock.Verify(f => f.GenerateCardNumber(), Times.Once);
+            _cardNumberUtilsMock.Verify(f => f.GenerateCardNumber(), Times.Once);
             _cardRepositoryMock.Verify(r => r.CreateCard(It.Is<Card>(c => c.CardNumber == cardNumber && c.UserId == userSubjectId && c.Balance == initialBalance)), Times.Once);
         }
 

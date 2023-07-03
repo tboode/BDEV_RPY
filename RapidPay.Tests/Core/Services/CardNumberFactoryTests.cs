@@ -1,19 +1,20 @@
 ﻿using RapidPay.Core.Interfaces.Infrastructure.Data.Repositories;
 using RapidPay.Core.Services;
+using RapidPay.Core.Services.Utils;
 
 namespace RapidPay.Tests.Core.Services;
 
 [TestFixture]
 public class CardNumberFactoryTests
 {
-    private CardNumberFactory _cardNumberFactory;
+    private CardNumberUtils _cardNumberUtils;
     private Mock<ICardRepository> _cardRepositoryMock;
     
     [SetUp]
     public void Setup()
     {
         _cardRepositoryMock = new Mock<ICardRepository>();
-        _cardNumberFactory = new CardNumberFactory(_cardRepositoryMock.Object);
+        _cardNumberUtils = new CardNumberUtils(_cardRepositoryMock.Object);
     }
     
     [Test]
@@ -23,7 +24,7 @@ public class CardNumberFactoryTests
         _cardRepositoryMock.Setup(c => c.CardExists(It.IsAny<string>())).Returns(false);
         
         // Act
-        string cardNumber = _cardNumberFactory.GenerateCardNumber();
+        string cardNumber = _cardNumberUtils.GenerateCardNumber();
         
         // Assert
         Assert.That(cardNumber, Is.Not.Null.And.Length.EqualTo(15));
@@ -37,7 +38,7 @@ public class CardNumberFactoryTests
         string cardNumber = "123456789012345";
         
         // Act
-        string maskedCardNumber = CardNumberFactory.MaskCardNumber(cardNumber);
+        string maskedCardNumber = CardNumberUtils.MaskCardNumber(cardNumber);
         
         // Assert
         Assert.That(maskedCardNumber, Is.EqualTo("1234 **** **** 345"));

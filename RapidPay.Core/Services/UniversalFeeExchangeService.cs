@@ -53,7 +53,10 @@ public class UniversalFeeExchangeService: IUniversalFeeExchangeService
             Thread.Sleep(ONE_HOUR_IN_MILLISECONDS);
             UpdateMultiplier();
 
-            _logger.Log(LogLevel.Information, $"The Universal Fee Exchange has updated their fee multiplier to {GetCurrentMultiplier()}");
+            _logger.Log(
+                LogLevel.Information, 
+                "The Universal Fee Exchange has updated their fee multiplier to {CurrentMultiplier}", 
+                GetCurrentMultiplier());
         }
     }
     

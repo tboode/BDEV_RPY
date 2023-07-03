@@ -3,25 +3,26 @@ using RapidPay.Core.DTOs.Card;
 using RapidPay.Core.Entities;
 using RapidPay.Core.Interfaces.Infrastructure.Data.Repositories;
 using RapidPay.Core.Interfaces.Services;
+using RapidPay.Core.Services.Utils;
 
 namespace RapidPay.Core.Services;
 
 public class CardService : ICardService
 {
     private readonly ICardRepository _cardRepository;
-    private readonly ICardNumberFactory _cardNumberFactory;
+    private readonly ICardNumberUtils _cardNumberUtils;
     private readonly ILogger<CardService> _logger;
 
-    public CardService(ICardRepository cardRepository, ICardNumberFactory cardNumberFactory, ILogger<CardService> logger)
+    public CardService(ICardRepository cardRepository, ICardNumberUtils cardNumberUtils, ILogger<CardService> logger)
     {
         _cardRepository = cardRepository;
-        _cardNumberFactory = cardNumberFactory;
+        _cardNumberUtils = cardNumberUtils;
         _logger = logger;
     }
 
     public async Task<ServiceActionResult<CreateCardResponseDTO>> CreateCard(CreateCardRequestDTO request, string userSubjectId)
     {
-        _logger.Log(LogLevel.Information, $"Creating new card for user {userSubjectId}");
+        _logger.Log(LogLevel.Information, "Creating new card for user {UserSubjectId}", userSubjectId);
 
         var result = new ServiceActionResult<CreateCardResponseDTO>();
 
@@ -29,13 +30,13 @@ public class CardService : ICardService
         {
             UserId = userSubjectId,
             Balance = request.InitialBalance,
-            CardNumber = _cardNumberFactory.GenerateCardNumber(),
+            CardNumber = _cardNumberUtils.GenerateCardNumber(),
             Id = Guid.NewGuid()
         };
 
         await _cardRepository.CreateCard(card);
 
-        _logger.Log(LogLevel.Information, $"Created new card for user {userSubjectId} successfully");
+        _logger.Log(LogLevel.Information, "Created new card for user {UserSubjectId} successfully", userSubjectId);
 
         result.Status = ServiceActionResult<CreateCardResponseDTO>.ServiceActionResultStatus.Success;
         result.ActionResult = new CreateCardResponseDTO
@@ -53,7 +54,11 @@ public class CardService : ICardService
 
         if (result.Status != ServiceActionResult<BalanceResponseDTO>.ServiceActionResultStatus.Success)
         {
-            _logger.Log(LogLevel.Warning, $"Validation failed for get balance request for user {userSubjectId}. Reason: {result.ActionResultMessage}");
+            _logger.Log(
+                LogLevel.Warning, 
+                "Validation failed for get balance request for user {UserSubjectId}. Reason: {ResultActionResultMessage}", 
+                userSubjectId, 
+                result.ActionResultMessage);
 
             return result;
         }
@@ -72,7 +77,7 @@ public class CardService : ICardService
         var result = new ServiceActionResult<BalanceResponseDTO>();
         result.Status = ServiceActionResult<BalanceResponseDTO>.ServiceActionResultStatus.Success;
 
-        if (!cardNumber.All(char.IsDigit) || cardNumber.Length != 15)
+        if (!CardNumberUtils.IsValidCardNumber(cardNumber))
         {
             result.Status = ServiceActionResult<BalanceResponseDTO>.ServiceActionResultStatus.Failure;
             result.ActionResultMessage = "Card number is not valid.";
@@ -83,7 +88,7 @@ public class CardService : ICardService
         if (!_cardRepository.CardExists(cardNumber))
         {
             result.Status = ServiceActionResult<BalanceResponseDTO>.ServiceActionResultStatus.SecureFailure;
-            result.ActionResultMessage = $"Card {CardNumberFactory.MaskCardNumber(cardNumber)} does not exist.";
+            result.ActionResultMessage = $"Card {CardNumberUtils.MaskCardNumber(cardNumber)} does not exist.";
 
             return result;
         }
@@ -91,7 +96,7 @@ public class CardService : ICardService
         if (!CardBelongsToUser(userSubjectId, cardNumber))
         {
             result.Status = ServiceActionResult<BalanceResponseDTO>.ServiceActionResultStatus.SecureFailure;
-            result.ActionResultMessage = $"Card {CardNumberFactory.MaskCardNumber(cardNumber)} does not belong to user.";
+            result.ActionResultMessage = $"Card {CardNumberUtils.MaskCardNumber(cardNumber)} does not belong to user.";
 
             return result;
         }
