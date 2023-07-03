@@ -15,13 +15,11 @@ namespace RapidPay.Api.Controllers;
 [Route("[controller]/[action]")]
 public class CardController : ControllerBase
 {
-    private readonly ILogger<CardController> _logger;
     private readonly ICardService _cardService;
     private readonly IValidator<CreateCardRequestDTO> _createCardRequestDTOValidator;
     
-    public CardController(ILogger<CardController> logger, ICardService cardService, IValidator<CreateCardRequestDTO> createCardRequestDtoValidator)
+    public CardController(ICardService cardService, IValidator<CreateCardRequestDTO> createCardRequestDtoValidator)
     {
-        _logger = logger;
         _cardService = cardService;
         _createCardRequestDTOValidator = createCardRequestDtoValidator;
     }
