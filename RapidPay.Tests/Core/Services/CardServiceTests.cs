@@ -37,6 +37,7 @@ namespace RapidPay.Tests.Core.Services
             var cardNumber = "123456789123456";
 
             var createCardRequestDTO = new CreateCardRequestDTO { InitialBalance = initialBalance };
+            
             _cardNumberFactoryMock.Setup(f => f.GenerateCardNumber()).Returns(cardNumber);
 
             // Act
@@ -55,6 +56,7 @@ namespace RapidPay.Tests.Core.Services
         [Test]
         public void GetBalance_ValidRequest_ReturnsSuccessResult()
         {
+            // Arrange
             var userSubjectId = "test-id";
             var cardNumber = "123456789123456";
             var balance = 500;
@@ -63,8 +65,10 @@ namespace RapidPay.Tests.Core.Services
             _cardRepositoryMock.Setup(r => r.CardExists(cardNumber)).Returns(true);
             _cardRepositoryMock.Setup(r => r.GetCard(cardNumber)).Returns(card);
 
+            // Act
             var result = _cardService.GetBalance(cardNumber, userSubjectId);
 
+            // Assert
             Assert.That(result.Status, Is.EqualTo(ServiceActionResult<BalanceResponseDTO>.ServiceActionResultStatus.Success));
             Assert.That(result.ActionResult.Balance, Is.EqualTo(balance));
             Assert.That(result.ActionResult.CardNumber, Is.EqualTo(cardNumber));
@@ -76,13 +80,14 @@ namespace RapidPay.Tests.Core.Services
         [Test]
         public void GetBalance_CardNumberContainsLetters_ReturnsInvalidCard()
         {
+            // Arrange
             var userSubjectId = "test-id";
             var cardNumber = "a23456789123456";
-            var balance = 500;
-            var card = new Card { UserId = userSubjectId, CardNumber = cardNumber, Balance = balance };
 
+            // Act
             var result = _cardService.GetBalance(cardNumber, userSubjectId);
 
+            // Assert
             Assert.That(result.Status, Is.EqualTo(ServiceActionResult<BalanceResponseDTO>.ServiceActionResultStatus.Failure));
             Assert.That(result.ActionResultMessage, Is.EqualTo("Card number is not valid."));
         }
@@ -90,13 +95,14 @@ namespace RapidPay.Tests.Core.Services
         [Test]
         public void GetBalance_CardNumberTooShort_ReturnsInvalidCard()
         {
+            // Arrange
             var userSubjectId = "test-id";
             var cardNumber = "12345678912345";
-            var balance = 500;
-            var card = new Card { UserId = userSubjectId, CardNumber = cardNumber, Balance = balance };
 
+            // Act
             var result = _cardService.GetBalance(cardNumber, userSubjectId);
 
+            // Assert
             Assert.That(result.Status, Is.EqualTo(ServiceActionResult<BalanceResponseDTO>.ServiceActionResultStatus.Failure));
             Assert.That(result.ActionResultMessage, Is.EqualTo("Card number is not valid."));
         }
@@ -104,13 +110,14 @@ namespace RapidPay.Tests.Core.Services
         [Test]
         public void GetBalance_CardNumberTooLong_ReturnsInvalidCard()
         {
+            // Arrange
             var userSubjectId = "test-id";
             var cardNumber = "123456789123456789";
-            var balance = 500;
-            var card = new Card { UserId = userSubjectId, CardNumber = cardNumber, Balance = balance };
 
+            // Act
             var result = _cardService.GetBalance(cardNumber, userSubjectId);
 
+            // Assert
             Assert.That(result.Status, Is.EqualTo(ServiceActionResult<BalanceResponseDTO>.ServiceActionResultStatus.Failure));
             Assert.That(result.ActionResultMessage, Is.EqualTo("Card number is not valid."));
         }
@@ -118,17 +125,21 @@ namespace RapidPay.Tests.Core.Services
         [Test]
         public void GetBalance_OnNonExistentCard_ReturnsSecureCardDoesNotExist()
         {
+            // Arrange
             var userSubjectId = "test-id";
             var cardNumber = "123456789123456";
+            var maskedCardNumer = "1234 **** **** 456";
             var balance = 500;
             var card = new Card { UserId = userSubjectId, CardNumber = cardNumber, Balance = balance };
 
             _cardRepositoryMock.Setup(r => r.CardExists(cardNumber)).Returns(false);
 
+            // Act
             var result = _cardService.GetBalance(cardNumber, userSubjectId);
 
+            // Assert
             Assert.That(result.Status, Is.EqualTo(ServiceActionResult<BalanceResponseDTO>.ServiceActionResultStatus.SecureFailure));
-            Assert.That(result.ActionResultMessage, Is.EqualTo("Card does not exist."));
+            Assert.That(result.ActionResultMessage, Is.EqualTo($"Card {maskedCardNumer} does not exist."));
 
             _cardRepositoryMock.Verify(r => r.CardExists(cardNumber), Times.Once);
         }
@@ -136,8 +147,10 @@ namespace RapidPay.Tests.Core.Services
         [Test]
         public void GetBalance_OnCardNotOwnedByUser_ReturnsSecureCardDoesNotBelongToUser()
         {
+            // Arrange
             var userSubjectId = "test-id";
             var cardNumber = "123456789123456";
+            var maskedCardNumer = "1234 **** **** 456";
             var balance = 500;
             var card = new Card { UserId = userSubjectId, CardNumber = cardNumber, Balance = balance };
 
@@ -146,16 +159,15 @@ namespace RapidPay.Tests.Core.Services
             _cardRepositoryMock.Setup(r => r.CardExists(cardNumber)).Returns(true);
             _cardRepositoryMock.Setup(r => r.GetCard(cardNumber)).Returns(card);
 
+            // Act
             var result = _cardService.GetBalance(cardNumber, otherUserSubjectId);
 
+            // Assert
             Assert.That(result.Status, Is.EqualTo(ServiceActionResult<BalanceResponseDTO>.ServiceActionResultStatus.SecureFailure));
-            Assert.That(result.ActionResultMessage, Is.EqualTo("Card does not belong to user."));
+            Assert.That(result.ActionResultMessage, Is.EqualTo($"Card {maskedCardNumer} does not belong to user."));
 
             _cardRepositoryMock.Verify(r => r.CardExists(cardNumber), Times.Once);
             _cardRepositoryMock.Verify(r => r.GetCard(cardNumber), Times.Once);
         }
     }
 }
-
-#pragma warning restore CS8618
-#pragma warning restore CS8602

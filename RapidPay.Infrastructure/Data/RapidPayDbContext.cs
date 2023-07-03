@@ -5,7 +5,7 @@ namespace RapidPay.Infrastructure.Data;
 
 public class RapidPayDbContext: DbContext
 {
-    public DbSet<Card> Cards { get; set; }
+    public virtual DbSet<Card> Cards { get; set; } = default!;
     
     private const string DB_PATH = "./rapidpay.db";
     

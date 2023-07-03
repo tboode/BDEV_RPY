@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RapidPay.Core\RapidPay.Core.csproj" />
+    <ProjectReference Include="..\RapidPay.Infrastructure\RapidPay.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
