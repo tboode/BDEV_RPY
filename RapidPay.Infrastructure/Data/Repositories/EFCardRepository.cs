@@ -10,6 +10,8 @@ public class EFCardRepository : ICardRepository
     private readonly RapidPayDbContext _dbContext;
     private readonly ConcurrentDictionary<string, Card> _cache = new();
 
+    private static ReaderWriterLockSlim _dbLock = new(); // Entity framework with SQLite is not thread safe by default.
+
     public EFCardRepository(RapidPayDbContext dbContext)
     {
         _dbContext = dbContext;
@@ -29,8 +31,24 @@ public class EFCardRepository : ICardRepository
     {
         _cache[card.CardNumber] = card;
 
-        _dbContext.Add(card);
-        await _dbContext.SaveChangesAsync();
+        await AddToDb(card);
+    }
+
+    private Task AddToDb(Card card)
+    {
+        return Task.Run(() =>
+        {
+            _dbLock.EnterWriteLock();
+            try
+            {
+                _dbContext.Add(card);
+                _dbContext.SaveChanges();
+            }
+            finally
+            {
+                _dbLock.ExitWriteLock();
+            }
+        });
     }
 
     public Card? GetCard(string cardNumber)
@@ -46,9 +64,25 @@ public class EFCardRepository : ICardRepository
             throw new ArgumentException("Attempted to update card that does not exist.");
 
         _cache[card.CardNumber] = card;
+        
+        await UpdateInDb(card);
+    }
 
-        _dbContext.Update(card);
-        await _dbContext.SaveChangesAsync();
+    private Task UpdateInDb(Card card)
+    {
+        return Task.Run(() =>
+        {
+            _dbLock.EnterWriteLock();
+            try
+            {
+                _dbContext.Update(card);
+                _dbContext.SaveChanges();
+            }
+            finally
+            {
+                _dbLock.ExitWriteLock();
+            }
+        });
     }
 
     public bool CardExists(string cardNumber)

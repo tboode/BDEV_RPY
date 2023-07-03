@@ -2,7 +2,7 @@ namespace RapidPay.Core.DTOs.Payment;
 
 public class PaymentResponseDTO
 {
-    public string CardNumber { get; set; }
+    public string CardNumber { get; set; } = default!;
     public decimal Amount { get; set; }
     public decimal Fee { get; set; }
     public decimal TotalAmount { get; set; }

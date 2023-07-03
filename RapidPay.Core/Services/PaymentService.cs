@@ -35,7 +35,7 @@ public class PaymentService : IPaymentService
 
         var card = _cardRepository.GetCard(request.CardNumber);
 
-        var fee = _universalFeeExchangeService.GetFee(card.LastFee);
+        var fee = _universalFeeExchangeService.GetFee(card!.LastFee);
         
         card.Balance -= request.Amount + fee;
         card.LastFee = fee;
@@ -72,7 +72,7 @@ public class PaymentService : IPaymentService
         var card = _cardRepository.GetCard(request.CardNumber);
 
         // Verify card belongs to user.
-        if (!card.UserId.Equals(userSubjectId))
+        if (!card!.UserId.Equals(userSubjectId))
         {
             result.Status = ServiceActionResult<PaymentResponseDTO>.ServiceActionResultStatus.SecureFailure;
             result.ActionResultMessage = "Card does not belong to user.";

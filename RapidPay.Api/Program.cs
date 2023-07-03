@@ -54,8 +54,8 @@ builder.Services.AddSwaggerGen(options =>
         {
             AuthorizationCode = new OpenApiOAuthFlow
             {
-                AuthorizationUrl = new Uri(configuration.GetSection("Auth:Swagger:AuthorizationUrl").Get<string>()),
-                TokenUrl = new Uri(configuration.GetSection("Auth:Swagger:TokenUrl").Get<string>())
+                AuthorizationUrl = new Uri(configuration.GetSection("Auth:Swagger:AuthorizationUrl").Get<string>()!),
+                TokenUrl = new Uri(configuration.GetSection("Auth:Swagger:TokenUrl").Get<string>()!)
             }
         },
         Type = SecuritySchemeType.OAuth2
