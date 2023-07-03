@@ -9,7 +9,7 @@ public class EFCardRepository : ICardRepository
     private readonly RapidPayDbContext _dbContext;
     private readonly ConcurrentDictionary<string, Card> _cache = new();
 
-    private static ReaderWriterLockSlim _dbLock = new(); // Entity framework with SQLite is not thread safe by default.
+    private static readonly ReaderWriterLockSlim _dbLock = new(); // Entity framework with SQLite is not thread safe by default.
 
     public EFCardRepository(RapidPayDbContext dbContext)
     {

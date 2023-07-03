@@ -74,8 +74,10 @@ public class CardService : ICardService
 
     private ServiceActionResult<BalanceResponseDTO> ValidateGetBalanceRequest(string cardNumber, string userSubjectId)
     {
-        var result = new ServiceActionResult<BalanceResponseDTO>();
-        result.Status = ServiceActionResult<BalanceResponseDTO>.ServiceActionResultStatus.Success;
+        var result = new ServiceActionResult<BalanceResponseDTO>
+        {
+            Status = ServiceActionResult<BalanceResponseDTO>.ServiceActionResultStatus.Success
+        };
 
         if (!CardNumberUtils.IsValidCardNumber(cardNumber))
         {

@@ -74,7 +74,10 @@ public class PaymentService : IPaymentService
 
     private ServiceActionResult<PaymentResponseDTO> ValidatePaymentRequest(PaymentRequestDTO request, string userSubjectId)
     {
-        var result = new ServiceActionResult<PaymentResponseDTO>();
+        var result = new ServiceActionResult<PaymentResponseDTO>
+        {
+            Status = ServiceActionResult<PaymentResponseDTO>.ServiceActionResultStatus.Success
+        };
 
         if (!_cardRepository.CardExists(request.CardNumber))
         {
@@ -104,7 +107,6 @@ public class PaymentService : IPaymentService
             return result;
         }
 
-        result.Status = ServiceActionResult<PaymentResponseDTO>.ServiceActionResultStatus.Success;
         return result;
     }
 }

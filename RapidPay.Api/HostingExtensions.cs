@@ -76,7 +76,6 @@ internal static class HostingExtensions
             .AddJwtBearer("Bearer", options =>
             {
                 options.Authority = configuration.GetSection("Auth:Authority").Get<string>();
-                options.RequireHttpsMetadata = false; // TODO: Fix ssl cert trust.
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateAudience = false
@@ -87,12 +86,13 @@ internal static class HostingExtensions
     private static void InjectDependencies(WebApplicationBuilder builder)
     {
         builder.Services.AddDbContext<RapidPayDbContext>();
-        builder.Services.AddTransient<ICardRepository, EFCardRepository>();
+        builder.Services.AddScoped<ICardRepository, EFCardRepository>();
+        
+        builder.Services.AddScoped<ICardNumberUtils, CardNumberUtils>();
 
         builder.Services.AddSingleton<IUniversalFeeExchangeService, UniversalFeeExchangeService>();
-        builder.Services.AddTransient<ICardNumberUtils, CardNumberUtils>();
-        builder.Services.AddTransient<ICardService, CardService>();
-        builder.Services.AddTransient<IPaymentService, PaymentService>();
+        builder.Services.AddScoped<ICardService, CardService>();
+        builder.Services.AddScoped<IPaymentService, PaymentService>();
 
         builder.Services.AddScoped<IValidator<CreateCardRequestDTO>, CreateCardRequestDTOValidator>();
         builder.Services.AddScoped<IValidator<PaymentRequestDTO>, PaymentRequestDTOValidator>();

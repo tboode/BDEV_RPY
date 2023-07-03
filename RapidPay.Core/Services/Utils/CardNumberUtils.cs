@@ -1,3 +1,4 @@
+using System.Text;
 using RapidPay.Core.Interfaces.Infrastructure.Data.Repositories;
 using RapidPay.Core.Interfaces.Services;
 
@@ -14,21 +15,22 @@ public class CardNumberUtils: ICardNumberUtils
 
     public string GenerateCardNumber()
     {
-        string result;
+        StringBuilder result = new StringBuilder();
         Random random = new Random();
 
         do
         {
-            result = "";
+            result.Clear();
 
             for (int i = 0; i < 15; i++)
             {
-                result += $"{random.Next(0, 9)}";
+                result.Append(random.Next(0, 9));
             }
-        } while (_cardRepository.CardExists(result));
+        } while (_cardRepository.CardExists(result.ToString()));
 
-        return result;
+        return result.ToString();
     }
+
 
     public static bool IsValidCardNumber(string cardNumber)
     {

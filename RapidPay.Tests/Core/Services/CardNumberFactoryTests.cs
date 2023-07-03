@@ -1,8 +1,10 @@
 ﻿using RapidPay.Core.Interfaces.Infrastructure.Data.Repositories;
-using RapidPay.Core.Services;
 using RapidPay.Core.Services.Utils;
 
 namespace RapidPay.Tests.Core.Services;
+
+#pragma warning disable CS8618 // Disable nullable warning in tests.
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
 
 [TestFixture]
 public class CardNumberFactoryTests

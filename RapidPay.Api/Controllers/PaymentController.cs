@@ -24,12 +24,10 @@ public class PaymentController : ControllerBase
     [HttpPut]
     public async Task<IActionResult> Pay(PaymentRequestDTO request)
     {
-        ValidationResult validationResult = await _paymentRequestDtoValidator.ValidateAsync(request);
+        var validationResult = await _paymentRequestDtoValidator.ValidateAsync(request);
 
         if (!validationResult.IsValid)
-        {
             return BadRequest(validationResult.Errors);
-        }
 
         return this.HandleServiceActionResult(await _paymentService.Pay(request, this.ReadUserId()));
     }

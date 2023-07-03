@@ -29,7 +29,7 @@ namespace RapidPay.Tests.Core.Services
         }
 
         [Test]
-        public async Task CreateCard_ValidRequest_ReturnsSuccessResult()
+        public async Task CreateCard_ValidRequest_ShouldReturnSuccessResult()
         {
             // Arrange
             var userSubjectId = "test-id";
@@ -54,7 +54,7 @@ namespace RapidPay.Tests.Core.Services
         }
 
         [Test]
-        public void GetBalance_ValidRequest_ReturnsSuccessResult()
+        public void GetBalance_ValidRequest_ShouldReturnSuccessResult()
         {
             // Arrange
             var userSubjectId = "test-id";
@@ -78,7 +78,7 @@ namespace RapidPay.Tests.Core.Services
         }
 
         [Test]
-        public void GetBalance_CardNumberContainsLetters_ReturnsInvalidCard()
+        public void GetBalance_CardNumberContainsLetters_ShouldReturnInvalidCard()
         {
             // Arrange
             var userSubjectId = "test-id";
@@ -93,7 +93,7 @@ namespace RapidPay.Tests.Core.Services
         }
 
         [Test]
-        public void GetBalance_CardNumberTooShort_ReturnsInvalidCard()
+        public void GetBalance_CardNumberTooShort_ShouldReturnInvalidCard()
         {
             // Arrange
             var userSubjectId = "test-id";
@@ -108,7 +108,7 @@ namespace RapidPay.Tests.Core.Services
         }
 
         [Test]
-        public void GetBalance_CardNumberTooLong_ReturnsInvalidCard()
+        public void GetBalance_CardNumberTooLong_ShouldReturnInvalidCard()
         {
             // Arrange
             var userSubjectId = "test-id";
@@ -123,7 +123,7 @@ namespace RapidPay.Tests.Core.Services
         }
 
         [Test]
-        public void GetBalance_OnNonExistentCard_ReturnsSecureCardDoesNotExist()
+        public void GetBalance_OnNonExistentCard_ShouldReturnSecureCardDoesNotExist()
         {
             // Arrange
             var userSubjectId = "test-id";
@@ -145,7 +145,7 @@ namespace RapidPay.Tests.Core.Services
         }
 
         [Test]
-        public void GetBalance_OnCardNotOwnedByUser_ReturnsSecureCardDoesNotBelongToUser()
+        public void GetBalance_OnCardNotOwnedByUser_ShouldReturnSecureCardDoesNotBelongToUser()
         {
             // Arrange
             var userSubjectId = "test-id";

@@ -27,12 +27,10 @@ public class CardController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateCardRequestDTO request)
     {
-        ValidationResult validationResult = await _createCardRequestDTOValidator.ValidateAsync(request);
+        var validationResult = await _createCardRequestDTOValidator.ValidateAsync(request);
 
         if (!validationResult.IsValid)
-        {
             return BadRequest(validationResult.Errors);
-        }
 
         return this.HandleServiceActionResult(await _cardService.CreateCard(request, this.ReadUserId()));
     }

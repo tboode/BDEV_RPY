@@ -1,7 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RapidPay.Core.Entities;
+using RapidPay.Infrastructure.Data;
+using RapidPay.Infrastructure.Data.Repositories;
 
-namespace RapidPay.Infrastructure.Data.Repositories.Tests;
+namespace RapidPay.Tests.Infrastructure.Data.Repositories;
+
+#pragma warning disable CS8618 // Disable nullable warning in tests.
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
 
 [TestFixture]
 public class EFCardRepositoryTests

@@ -44,7 +44,6 @@ namespace RapidPay.Identity
 
             builder.Services.AddAuthentication();
 
-            builder.Services.AddTransient<RapidPay.Identity.Pages.Portal.ClientRepository>();
             builder.Services.AddTransient<ClientRepository>();
             builder.Services.AddTransient<IdentityScopeRepository>();
             builder.Services.AddTransient<ApiScopeRepository>();

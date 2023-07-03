@@ -28,7 +28,7 @@ public class PaymentServiceTests
     }
 
     [Test]
-    public async Task Pay_ValidPayment_ReturnsSuccessResult()
+    public async Task Pay_ValidPayment_ShouldReturnSuccessResult()
     {
         // Arrange
         var cardNumber = "123456789123456";
@@ -57,7 +57,7 @@ public class PaymentServiceTests
     }
 
     [Test]
-    public async Task Pay_CardDoesNotExist_ReturnsSecureCardDoesNotExist()
+    public async Task Pay_CardDoesNotExist_ShouldReturnSecureCardDoesNotExist()
     {
         // Arrange
         var paymentRequest = new PaymentRequestDTO { CardNumber = "123456789123456", Amount = 100 };
@@ -71,7 +71,7 @@ public class PaymentServiceTests
     }
     
     [Test]
-    public async Task Pay_OnNonExistentCard_ReturnsSecureCardDoesNotExist()
+    public async Task Pay_OnNonExistentCard_ShouldReturnSecureCardDoesNotExist()
     {
         // Arrange
         var cardNumber = "123456789123456";
@@ -90,7 +90,7 @@ public class PaymentServiceTests
     }
     
     [Test]
-    public async Task Pay_OnCardNotOwnedByUser_ReturnsSecureCardDoesNotBelongToUser()
+    public async Task Pay_OnCardNotOwnedByUser_ShouldReturnSecureCardDoesNotBelongToUser()
     {
         // Arrange
         var cardNumber = "123456789123456";
@@ -116,7 +116,7 @@ public class PaymentServiceTests
     }
 
     [Test]
-    public async Task Pay_InsufficientFunds_ReturnsFailureInsufficientFunds()
+    public async Task Pay_InsufficientFunds_ShouldReturnFailureInsufficientFunds()
     {
         // Arrange
         var cardNumber = "123456789123456";

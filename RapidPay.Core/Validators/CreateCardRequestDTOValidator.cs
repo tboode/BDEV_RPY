@@ -8,6 +8,8 @@ public class CreateCardRequestDTOValidator: AbstractValidator<CreateCardRequestD
 {
     public CreateCardRequestDTOValidator()
     {
-        RuleFor(x => x.InitialBalance).GreaterThan(0).WithMessage("Initial balance must be greater than 0");
+        RuleFor(x => x.InitialBalance).
+            GreaterThan(0).
+            WithMessage("Initial balance must be greater than 0");
     }
 }
