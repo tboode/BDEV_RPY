@@ -71,6 +71,14 @@ public class CardService : ICardService
         var result = new ServiceActionResult<BalanceResponseDTO>();
         result.Status = ServiceActionResult<BalanceResponseDTO>.ServiceActionResultStatus.Success;
 
+        if (!cardNumber.All(char.IsDigit) && cardNumber.Length == 15)
+        {
+            result.Status = ServiceActionResult<BalanceResponseDTO>.ServiceActionResultStatus.Failure;
+            result.ActionResultMessage = "Card number is not valid.";
+
+            return result;
+        }
+
         if (!_cardRepository.CardExists(cardNumber))
         {
             result.Status = ServiceActionResult<BalanceResponseDTO>.ServiceActionResultStatus.SecureFailure;

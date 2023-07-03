@@ -1,4 +1,6 @@
 using System.Net;
+using FluentValidation;
+using FluentValidation.Results;
 using IdentityModel;
 using Microsoft.AspNetCore.Mvc;
 using RapidPay.Core.DTOs;
@@ -15,16 +17,25 @@ public class CardController : ControllerBase
 {
     private readonly ILogger<CardController> _logger;
     private readonly ICardService _cardService;
+    private readonly IValidator<CreateCardRequestDTO> _createCardRequestDTOValidator;
     
-    public CardController(ILogger<CardController> logger, ICardService cardService)
+    public CardController(ILogger<CardController> logger, ICardService cardService, IValidator<CreateCardRequestDTO> createCardRequestDtoValidator)
     {
         _logger = logger;
         _cardService = cardService;
+        _createCardRequestDTOValidator = createCardRequestDtoValidator;
     }
     
     [HttpPost]
     public async Task<IActionResult> Create(CreateCardRequestDTO request)
     {
+        ValidationResult validationResult = await _createCardRequestDTOValidator.ValidateAsync(request);
+
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(validationResult.Errors);
+        }
+
         return this.HandleServiceActionResult(await _cardService.CreateCard(request, this.ReadUserId()));
     }
     
