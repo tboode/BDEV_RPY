@@ -12,6 +12,10 @@ namespace RapidPay.Tests.Core.Services;
 [TestFixture]
 public class PaymentServiceTests
 {
+    private const string CARD_NUMBER = "123456789012345";
+    private const string SUBJECT_ID = "test-id";
+    private const decimal INITIAL_BALANCE = 500;
+    
     private Mock<ICardRepository> _cardRepositoryMock;
     private Mock<IUniversalFeeExchangeService> _universalFeeExchangeServiceMock;
     private Mock<ILogger<PaymentService>> _loggerMock;
@@ -30,112 +34,93 @@ public class PaymentServiceTests
     public async Task Pay_ValidPayment_ShouldReturnSuccessResult()
     {
         // Arrange
-        var cardNumber = "123456789123456";
         decimal lastFee = 10;
         decimal newFee = 15;
+        decimal resultingBalance = 385;
         
-        var paymentRequest = new PaymentRequestDTO { CardNumber = cardNumber, Amount = 100 };
-        var card = new Card { CardNumber = cardNumber, Balance = 200, UserId = "user1", LastFee = lastFee };
+        var paymentRequest = new PaymentRequestDTO { CardNumber = CARD_NUMBER, Amount = 100 };
+        var card = new Card { CardNumber = CARD_NUMBER, Balance = INITIAL_BALANCE, UserId = SUBJECT_ID, LastFee = lastFee };
         
-        _cardRepositoryMock.Setup(x => x.CardExists(cardNumber)).Returns(true);
-        _cardRepositoryMock.Setup(x => x.GetCard(cardNumber)).Returns(card);
+        _cardRepositoryMock.Setup(x => x.CardExists(CARD_NUMBER)).Returns(true);
+        _cardRepositoryMock.Setup(x => x.GetCard(CARD_NUMBER)).Returns(card);
         _universalFeeExchangeServiceMock.Setup(x => x.GetFee(lastFee)).Returns(newFee);
 
         // Act
-        var result = await _paymentService.Pay(paymentRequest, "user1");
+        var result = await _paymentService.Pay(paymentRequest, SUBJECT_ID);
 
         // Assert
         Assert.That(result.Status, Is.EqualTo(ServiceActionResult<PaymentResponseDTO>.ServiceActionResultStatus.Success));
-        Assert.That(result.ActionResult.Balance, Is.EqualTo(85));
+        Assert.That(result.ActionResult.Balance, Is.EqualTo(resultingBalance));
         
-        _cardRepositoryMock.Verify(x => x.CardExists(cardNumber), Times.Once);
-        _cardRepositoryMock.Verify(x => x.GetCard(cardNumber), Times.Exactly(2));
-        _cardRepositoryMock.Verify(x => x.UpdateCard(It.Is<Card>(c => c.CardNumber == cardNumber && c.Balance == 85 && c.LastFee == newFee)), Times.Once);
+        _cardRepositoryMock.Verify(x => x.CardExists(CARD_NUMBER), Times.Once);
+        _cardRepositoryMock.Verify(x => x.GetCard(CARD_NUMBER), Times.Exactly(2));
+        _cardRepositoryMock.Verify(x => x.UpdateCard(It.Is<Card>(c => c.CardNumber == CARD_NUMBER && c.Balance == resultingBalance && c.LastFee == newFee)), Times.Once);
         
         _universalFeeExchangeServiceMock.Verify(x => x.GetFee(lastFee), Times.Exactly(2));
-    }
-
-    [Test]
-    public async Task Pay_CardDoesNotExist_ShouldReturnSecureCardDoesNotExist()
-    {
-        // Arrange
-        var paymentRequest = new PaymentRequestDTO { CardNumber = "123456789123456", Amount = 100 };
-        _cardRepositoryMock.Setup(x => x.CardExists(It.IsAny<string>())).Returns(false);
-
-        // Act
-        var result = await _paymentService.Pay(paymentRequest, "user1");
-
-        // Assert
-        Assert.That(result.Status, Is.EqualTo(ServiceActionResult<PaymentResponseDTO>.ServiceActionResultStatus.SecureFailure));
     }
     
     [Test]
     public async Task Pay_OnNonExistentCard_ShouldReturnSecureCardDoesNotExist()
     {
         // Arrange
-        var cardNumber = "123456789123456";
-        var paymentRequest = new PaymentRequestDTO { CardNumber = cardNumber, Amount = 100 };
+        var paymentRequest = new PaymentRequestDTO { CardNumber = CARD_NUMBER, Amount = 100 };
 
-        _cardRepositoryMock.Setup(r => r.CardExists(cardNumber)).Returns(false);
+        _cardRepositoryMock.Setup(r => r.CardExists(CARD_NUMBER)).Returns(false);
 
         // Act
-        var result = await _paymentService.Pay(paymentRequest, "user1");
+        var result = await _paymentService.Pay(paymentRequest, SUBJECT_ID);
 
         // Assert
         Assert.That(result.Status, Is.EqualTo(ServiceActionResult<PaymentResponseDTO>.ServiceActionResultStatus.SecureFailure));
         Assert.That(result.ActionResultMessage, Is.EqualTo("Card does not exist."));
 
-        _cardRepositoryMock.Verify(r => r.CardExists(cardNumber), Times.Once);
+        _cardRepositoryMock.Verify(r => r.CardExists(CARD_NUMBER), Times.Once);
     }
     
     [Test]
     public async Task Pay_OnCardNotOwnedByUser_ShouldReturnSecureCardDoesNotBelongToUser()
     {
         // Arrange
-        var cardNumber = "123456789123456";
         var amount = 500;
-        var cardUser = "user";
-        var requestUser = "other-user";
+        var otherSubject = "other-user";
         
-        var request = new PaymentRequestDTO() { CardNumber = cardNumber, Amount = amount};
-        var card = new Card { CardNumber = cardNumber, Balance = 200, UserId = cardUser, LastFee = 10 };
+        var request = new PaymentRequestDTO() { CardNumber = CARD_NUMBER, Amount = amount};
+        var card = new Card { CardNumber = CARD_NUMBER, Balance = INITIAL_BALANCE, UserId = SUBJECT_ID, LastFee = 10 };
 
-        _cardRepositoryMock.Setup(r => r.CardExists(cardNumber)).Returns(true);
-        _cardRepositoryMock.Setup(r => r.GetCard(cardNumber)).Returns(card);
+        _cardRepositoryMock.Setup(r => r.CardExists(CARD_NUMBER)).Returns(true);
+        _cardRepositoryMock.Setup(r => r.GetCard(CARD_NUMBER)).Returns(card);
 
         // Act
-        var result = await _paymentService.Pay(request, requestUser);
+        var result = await _paymentService.Pay(request, otherSubject);
 
         // Assert
         Assert.That(result.Status, Is.EqualTo(ServiceActionResult<PaymentResponseDTO>.ServiceActionResultStatus.SecureFailure));
         Assert.That(result.ActionResultMessage, Is.EqualTo("Card does not belong to user."));
 
-        _cardRepositoryMock.Verify(r => r.CardExists(cardNumber), Times.Once);
-        _cardRepositoryMock.Verify(r => r.GetCard(cardNumber), Times.Once);
+        _cardRepositoryMock.Verify(r => r.CardExists(CARD_NUMBER), Times.Once);
+        _cardRepositoryMock.Verify(r => r.GetCard(CARD_NUMBER), Times.Once);
     }
 
     [Test]
     public async Task Pay_InsufficientFunds_ShouldReturnFailureInsufficientFunds()
     {
         // Arrange
-        var cardNumber = "123456789123456";
-        var amount = 500;
-        var cardUser = "user";
+        var amount = 5000;
         
-        var request = new PaymentRequestDTO() { CardNumber = cardNumber, Amount = amount};
-        var card = new Card { CardNumber = cardNumber, Balance = 200, UserId = cardUser, LastFee = 10 };
+        var request = new PaymentRequestDTO() { CardNumber = CARD_NUMBER, Amount = amount};
+        var card = new Card { CardNumber = CARD_NUMBER, Balance = INITIAL_BALANCE, UserId = SUBJECT_ID, LastFee = 10 };
 
-        _cardRepositoryMock.Setup(r => r.CardExists(cardNumber)).Returns(true);
-        _cardRepositoryMock.Setup(r => r.GetCard(cardNumber)).Returns(card);
+        _cardRepositoryMock.Setup(r => r.CardExists(CARD_NUMBER)).Returns(true);
+        _cardRepositoryMock.Setup(r => r.GetCard(CARD_NUMBER)).Returns(card);
 
         // Act
-        var result = await _paymentService.Pay(request, cardUser);
+        var result = await _paymentService.Pay(request, SUBJECT_ID);
 
         // Assert
         Assert.That(result.Status, Is.EqualTo(ServiceActionResult<PaymentResponseDTO>.ServiceActionResultStatus.Failure));
         Assert.That(result.ActionResultMessage, Is.EqualTo("Insufficient funds."));
 
-        _cardRepositoryMock.Verify(r => r.CardExists(cardNumber), Times.Once);
-        _cardRepositoryMock.Verify(r => r.GetCard(cardNumber), Times.Once);
+        _cardRepositoryMock.Verify(r => r.CardExists(CARD_NUMBER), Times.Once);
+        _cardRepositoryMock.Verify(r => r.GetCard(CARD_NUMBER), Times.Once);
     }
 }

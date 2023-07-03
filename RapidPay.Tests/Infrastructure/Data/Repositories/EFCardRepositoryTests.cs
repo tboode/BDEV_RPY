@@ -11,6 +11,8 @@ namespace RapidPay.Tests.Infrastructure.Data.Repositories;
 [TestFixture]
 public class EFCardRepositoryTests
 {
+    private const string CARD_NUMBER = "123456789012345";
+    
     private EFCardRepository _cardRepository;
     private Mock<RapidPayDbContext> _mockDbContext;
 
@@ -33,7 +35,7 @@ public class EFCardRepositoryTests
     public async Task CreateCard_ShouldAddCardToCacheAndDatabase()
     {
         // Arrange
-        var card = new Card { CardNumber = "123456789012345" };
+        var card = new Card { CardNumber = CARD_NUMBER };
         
         // Act
         await _cardRepository.CreateCard(card);
@@ -49,12 +51,11 @@ public class EFCardRepositoryTests
     public async Task GetCard_ExistingCardNumber_ShouldReturnCard()
     {
         // Arrange
-        var cardNumber = "123456789012345";
-        var card = new Card { CardNumber = cardNumber };
+        var card = new Card { CardNumber = CARD_NUMBER };
         await _cardRepository.CreateCard(card);
         
         // Act
-        var result = _cardRepository.GetCard(cardNumber);
+        var result = _cardRepository.GetCard(CARD_NUMBER);
         
         // Assert
         Assert.That(result, Is.EqualTo(card));
@@ -66,11 +67,8 @@ public class EFCardRepositoryTests
     [Test]
     public void GetCard_NonExistingCardNumber_ShouldReturnNull()
     {
-        // Arrange
-        var cardNumber = "123456789012345";
-        
         // Act
-        var result = _cardRepository.GetCard(cardNumber);
+        var result = _cardRepository.GetCard(CARD_NUMBER);
         
         // Assert
         Assert.IsNull(result);
@@ -80,8 +78,7 @@ public class EFCardRepositoryTests
     public async Task UpdateCard_ExistingCard_ShouldUpdateCardInCacheAndDatabase()
     {
         // Arrange
-        var cardNumber = "123456789012345";
-        var card = new Card { CardNumber = cardNumber, UserId = "user", Balance = 500};
+        var card = new Card { CardNumber = CARD_NUMBER, UserId = "user", Balance = 500};
         await _cardRepository.CreateCard(card);
 
         decimal newBalance = 400;
@@ -91,7 +88,7 @@ public class EFCardRepositoryTests
         await _cardRepository.UpdateCard(card);
         
         // Assert
-        Assert.That(_cardRepository.GetCard(cardNumber)?.Balance, Is.EqualTo(newBalance));
+        Assert.That(_cardRepository.GetCard(CARD_NUMBER)?.Balance, Is.EqualTo(newBalance));
         _mockDbContext.Verify(db => db.Update(card), Times.Once);
         _mockDbContext.Verify(db => db.SaveChanges(), Times.Exactly(2));
     }
@@ -100,7 +97,7 @@ public class EFCardRepositoryTests
     public void UpdateCard_NonExistingCard_ShouldThrowArgumentException()
     {
         // Arrange
-        var card = new Card { CardNumber = "123456789012345" };
+        var card = new Card { CardNumber = CARD_NUMBER };
         
         // Act & Assert
         Assert.ThrowsAsync<ArgumentException>(async () => await _cardRepository.UpdateCard(card));
@@ -110,22 +107,18 @@ public class EFCardRepositoryTests
     public async Task CardExists_ExistingCardNumber_ShouldReturnTrue()
     {
         // Arrange
-        var cardNumber = "123456789012345";
-        var card = new Card { CardNumber = cardNumber };
+        var card = new Card { CardNumber = CARD_NUMBER };
         
         await _cardRepository.CreateCard(card);;
         
         // Act & Assert
-        Assert.IsTrue(_cardRepository.CardExists(cardNumber));
+        Assert.IsTrue(_cardRepository.CardExists(CARD_NUMBER));
     }
 
     [Test]
     public void CardExists_NonExistingCardNumber_ShouldReturnFalse()
     {
-        // Arrange
-        var cardNumber = "123456789012345";
-        
         // Act & Assert
-        Assert.IsFalse(_cardRepository.CardExists(cardNumber));
+        Assert.IsFalse(_cardRepository.CardExists(CARD_NUMBER));
     }
 }
