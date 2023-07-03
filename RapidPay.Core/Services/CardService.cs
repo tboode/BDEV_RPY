@@ -37,6 +37,7 @@ public class CardService : ICardService
 
         _logger.Log(LogLevel.Information, $"Created new card for user {userSubjectId} successfully");
 
+        result.Status = ServiceActionResult<CreateCardResponseDTO>.ServiceActionResultStatus.Success;
         result.ActionResult = new CreateCardResponseDTO
         {
             CardNumber = card.CardNumber,
@@ -52,7 +53,7 @@ public class CardService : ICardService
 
         if (result.Status != ServiceActionResult<BalanceResponseDTO>.ServiceActionResultStatus.Success)
         {
-            _logger.Log(LogLevel.Warning, $"Validation failed for get balance request for card {CardNumberFactory.MaskCardNumber(cardNumber)} for user {userSubjectId}. Reason: {result.ActionResultMessage}");
+            _logger.Log(LogLevel.Warning, $"Validation failed for get balance request for user {userSubjectId}. Reason: {result.ActionResultMessage}");
 
             return result;
         }
@@ -71,7 +72,7 @@ public class CardService : ICardService
         var result = new ServiceActionResult<BalanceResponseDTO>();
         result.Status = ServiceActionResult<BalanceResponseDTO>.ServiceActionResultStatus.Success;
 
-        if (!cardNumber.All(char.IsDigit) && cardNumber.Length == 15)
+        if (!cardNumber.All(char.IsDigit) || cardNumber.Length != 15)
         {
             result.Status = ServiceActionResult<BalanceResponseDTO>.ServiceActionResultStatus.Failure;
             result.ActionResultMessage = "Card number is not valid.";
@@ -82,7 +83,7 @@ public class CardService : ICardService
         if (!_cardRepository.CardExists(cardNumber))
         {
             result.Status = ServiceActionResult<BalanceResponseDTO>.ServiceActionResultStatus.SecureFailure;
-            result.ActionResultMessage = "Card does not exist.";
+            result.ActionResultMessage = $"Card {CardNumberFactory.MaskCardNumber(cardNumber)} does not exist.";
 
             return result;
         }
@@ -90,7 +91,7 @@ public class CardService : ICardService
         if (!CardBelongsToUser(userSubjectId, cardNumber))
         {
             result.Status = ServiceActionResult<BalanceResponseDTO>.ServiceActionResultStatus.SecureFailure;
-            result.ActionResultMessage = "Card does not belong to user.";
+            result.ActionResultMessage = $"Card {CardNumberFactory.MaskCardNumber(cardNumber)} does not belong to user.";
 
             return result;
         }

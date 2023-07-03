@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using Microsoft.EntityFrameworkCore;
 using RapidPay.Core.Entities;
 using RapidPay.Core.Interfaces.Infrastructure.Data.Repositories;
 
