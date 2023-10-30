@@ -31,6 +31,8 @@ public class CardNumberFactoryTests
         // Assert
         Assert.That(cardNumber, Is.Not.Null.And.Length.EqualTo(15));
         Assert.That(cardNumber.All(char.IsDigit));
+
+        Assert.Fail();
     }
     
     [Test]
