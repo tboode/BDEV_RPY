@@ -29,6 +29,8 @@ internal static class HostingExtensions
 
         builder.Services.AddFluentValidationAutoValidation();
 
+        dfskjghij
+
         ConfigureSwaggerGenService(builder, configuration);
 
         return builder.Build();
